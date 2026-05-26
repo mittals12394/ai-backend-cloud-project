@@ -1,4 +1,5 @@
 const express = require('express');
+const AppError = require('../utils/AppError');
 const router = express.Router();
 
 const { getHealth, getVersion } = require('../controllers/healthController');
@@ -16,5 +17,9 @@ router.get('/user/:id', (req, res) => {
         query
     });
 });
+
+router.get('/error', (req, res, next) => {
+    next(new AppError("Custom error example", 400));
+})
 
 module.exports = router;
