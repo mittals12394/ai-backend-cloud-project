@@ -7,7 +7,7 @@ const AppError = require('./utils/AppError');
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 app.use(logger);
 app.use('/api', routes);
 

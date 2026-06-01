@@ -3,6 +3,8 @@ const AppError = require('../utils/AppError');
 const router = express.Router();
 
 const { getHealth, getVersion } = require('../controllers/healthController');
+const validate = require('../middleware/validate');
+const { createUserSchema } = require('../validators/userValidator');
 
 // Routes
 router.get('/health', getHealth);
