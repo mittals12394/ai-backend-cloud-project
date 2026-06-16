@@ -1,4 +1,5 @@
-const userService = require('../services/userService');
+const userService = require("../services/userService");
+const mongoose = require('mongoose');
 
 // Create
 const createUser = async (req, res, next) => {
@@ -26,7 +27,7 @@ const getUser = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid user ID"
+        message: "Invalid user ID",
       });
     }
     const user = await userService.getUserById(req.params.id);
@@ -34,12 +35,11 @@ const getUser = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     res.json({ success: true, data: user });
-
   } catch (err) {
     next(err);
   }
@@ -48,14 +48,13 @@ const getUser = async (req, res, next) => {
 // Update
 const updateUser = async (req, res, next) => {
   try {
-
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid user ID"
+        message: "Invalid user ID",
       });
     }
-    
+
     const user = await userService.updateUser(req.params.id, req.body);
     res.json({ success: true, data: user });
   } catch (err) {
@@ -78,5 +77,5 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
 };

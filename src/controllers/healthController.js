@@ -2,7 +2,7 @@
 const getHealth = (req, res) => {
   res.status(200).json({
     status: "OK",
-    message: "Server is healthy"
+    message: "Server is healthy",
   });
 };
 
@@ -10,11 +10,11 @@ const getHealth = (req, res) => {
 const getVersion = (req, res) => {
   res.status(200).json({
     version: "1.0.0",
-    service: "AI Backend Project"
+    service: "AI Backend Project",
   });
 };
 
 module.exports = {
   getHealth,
-  getVersion
+  getVersion,
 };

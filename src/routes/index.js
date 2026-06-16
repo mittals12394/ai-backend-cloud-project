@@ -1,11 +1,11 @@
-const express = require('express');
-const AppError = require('../utils/AppError');
+const express = require("express");
+const AppError = require("../utils/AppError");
 const router = express.Router();
 
-const { getHealth, getVersion } = require('../controllers/healthController');
-const validate = require('../middleware/validate');
-const { createUserSchema } = require('../validators/userValidator');
-const userController = require('../controllers/userController');
+const { getHealth, getVersion } = require("../controllers/healthController");
+const validate = require("../middleware/validate");
+const { createUserSchema } = require("../validators/userValidator");
+const userController = require("../controllers/userController");
 
 // Routes
 /**
@@ -17,9 +17,9 @@ const userController = require('../controllers/userController');
  *       200:
  *         description: Server is running
  */
-router.get('/health', getHealth);
+router.get("/health", getHealth);
 
-router.get('/version', getVersion);
+router.get("/version", getVersion);
 
 /**
  * @swagger
@@ -36,7 +36,7 @@ router.get('/version', getVersion);
  *       201:
  *         description: User created
  */
-router.post('/users', validate(createUserSchema), userController.createUser);
+router.post("/users", validate(createUserSchema), userController.createUser);
 
 /**
  * @swagger
@@ -63,9 +63,9 @@ router.post('/users', validate(createUserSchema), userController.createUser);
  *             description: User not found
  *         500:
  *             description: Server error
- *      
+ *
  */
-router.get('/users', userController.getUsers);
+router.get("/users", userController.getUsers);
 
 /**
  * @swagger
@@ -86,12 +86,12 @@ router.get('/users', userController.getUsers);
  *       404:
  *         description: User not found
  */
-router.get('/users/:id', userController.getUser);
-router.put('/users/:id', userController.updateUser);
-router.delete('/users/:id', userController.deleteUser);
+router.get("/users/:id", userController.getUser);
+router.put("/users/:id", userController.updateUser);
+router.delete("/users/:id", userController.deleteUser);
 
-router.get('/error', (req, res, next) => {
-    next(new AppError("Custom error example", 400));
-})
+router.get("/error", (req, res, next) => {
+  next(new AppError("Custom error example", 400));
+});
 
 module.exports = router;
