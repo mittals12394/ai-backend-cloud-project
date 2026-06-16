@@ -8,13 +8,86 @@ const { createUserSchema } = require('../validators/userValidator');
 const userController = require('../controllers/userController');
 
 // Routes
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Check server health
+ *     responses:
+ *       200:
+ *         description: Server is running
+ */
 router.get('/health', getHealth);
+
 router.get('/version', getVersion);
 
-router.post('/users', validate(createUserSchema), userController.createUser); 
-router.get('/users', userController.getUsers); 
-router.get('/users/:id', userController.getUser); 
-router.put('/users/:id', userController.updateUser); 
+/**
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Create a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created
+ */
+router.post('/users', validate(createUserSchema), userController.createUser);
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *         400:
+ *             description: Bad request
+ *         404:
+ *             description: User not found
+ *         500:
+ *             description: Server error
+ *      
+ */
+router.get('/users', userController.getUsers);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User found
+ *       400:
+ *         description: Invalid ID
+ *       404:
+ *         description: User not found
+ */
+router.get('/users/:id', userController.getUser);
+router.put('/users/:id', userController.updateUser);
 router.delete('/users/:id', userController.deleteUser);
 
 router.get('/error', (req, res, next) => {

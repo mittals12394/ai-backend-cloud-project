@@ -23,6 +23,12 @@ const getUsers = async (req, res, next) => {
 // Get by ID
 const getUser = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
     const user = await userService.getUserById(req.params.id);
 
     if (!user) {
@@ -42,6 +48,14 @@ const getUser = async (req, res, next) => {
 // Update
 const updateUser = async (req, res, next) => {
   try {
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
+    
     const user = await userService.updateUser(req.params.id, req.body);
     res.json({ success: true, data: user });
   } catch (err) {

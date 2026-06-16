@@ -3,11 +3,15 @@ const routes = require('./routes');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const AppError = require('./utils/AppError');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
 
 const app = express();
 
 // Middleware
 app.use(express.json({ limit: '10kb' }));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(logger);
 app.use('/api', routes);
 
