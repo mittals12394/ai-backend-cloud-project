@@ -13,6 +13,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(logger);
 app.use("/api", routes);
+app.use("/api/v2", routes);
 
 app.use((req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));

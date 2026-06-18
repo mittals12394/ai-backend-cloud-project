@@ -1,11 +1,13 @@
+const { PrismaClient } = require("@prisma/client");
 const User = require("../models/User");
+const prisma = new PrismaClient();
 
 const createUser = async (data) => {
   return await User.create(data);
 };
 
 const getUsers = async () => {
-  return await User.find();
+  return await prisma.user.findMany();
 };
 
 const getUserById = async (id) => {
