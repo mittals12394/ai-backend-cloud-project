@@ -5,7 +5,7 @@ const router = express.Router();
 const { getHealth, getVersion } = require("../controllers/healthController");
 const validate = require("../middleware/validate");
 const { createUserSchema } = require("../validators/userValidator");
-const { createIssueSchema } = require("../validators/issueValidator");
+const { createIssueSchema, listIssuesQuerySchema } = require("../validators/issueValidator");
 const userController = require("../controllers/userController");
 const issueController = require("../controllers/issueController");
 
@@ -93,6 +93,8 @@ router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 
 router.post("/issues", validate(createIssueSchema), issueController.createIssue);
+
+router.get("/issues", validate(listIssuesQuerySchema, 'query'), issueController.getIssues);
 
 router.get("/error", (req, res, next) => {
   next(new AppError("Custom error example", 400));

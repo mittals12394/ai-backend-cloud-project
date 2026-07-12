@@ -16,17 +16,33 @@ model User {
   issues    Issue[]
 }
 
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssueSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model Issue {
-  id        Int      @id @default(autoincrement())
-  title     String
+  id          Int           @id @default(autoincrement())
+  title       String
   description String?
-  createdAt DateTime @default(now())
+  status      IssueStatus   @default(OPEN)
+  severity    IssueSeverity @default(MEDIUM)
+  createdAt   DateTime      @default(now())
 
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
 
-  logs      LogEntry[]
-  tags      Tag[]
+  logs        LogEntry[]
+  tags        Tag[]
 }
 
 model LogEntry {
