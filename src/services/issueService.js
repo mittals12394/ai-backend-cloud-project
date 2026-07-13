@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { where } = require('../models/User');
 
 const createIssue = async (data) => {
     const user = await prisma.user.findUnique({
@@ -81,7 +82,84 @@ const getIssues = async (query) => {
     };
 };
 
+const getIssueById = async (id) => {
+
+    const issue = await prisma.issue.findUnique({
+        where: { id },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            },
+            logs: true,
+            tags: true
+        }
+    });
+
+    if (!issue) {
+        const error = new Error('Issue not found!');
+        error.status = 404;
+
+        throw error;
+    }
+
+    return issue;
+
+};
+
+const updateIssue = async (id, data) => {
+    const existing = await prisma.issue.findUnique({
+        where: { id }
+    });
+
+    if (!existing) {
+        const error = new Error('Issue not found!');
+        error.status = 404;
+
+        throw error;
+    }
+
+    if (existing.status === 'CLOSED') {
+        const error = new Error('Cannot update a CLOSED issue');
+        error.status = 409;
+
+        throw error;
+    }
+
+    return await prisma.issue.update({
+        where: { id },
+        data
+    });
+
+
+};
+
+const deleteIssue = async (id) => {
+    const issue = await prisma.issue.findUnique({
+        where: { id }
+    });
+
+    if (!issue) {
+        const error = new Error('Issue not found!');
+        error.status = 404;
+
+        throw error;
+    }
+
+    await prisma.issue.delete({
+        where: { id }
+    });
+
+    return { message: 'Issue deleted successfully' };
+};
+
 module.exports = {
     createIssue,
-    getIssues
+    getIssues,
+    getIssueById,
+    updateIssue,
+    deleteIssue
 };

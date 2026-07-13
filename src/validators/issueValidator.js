@@ -19,7 +19,23 @@ const listIssuesQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc')
 });
 
+const idParamSchema = z.object({
+  id: z.coerce.number().int().positive()
+});
+
+const updateIssueSchema = z.object({
+  title: z.string().min(3).optional(),
+  description: z.string().optional(),
+  status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']).optional(),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional()
+}).refine(
+  (data) => Object.keys(data).length > 0,
+  { message: 'At least one field must be provided for update' }
+);
+
 module.exports = {
   createIssueSchema,
-  listIssuesQuerySchema
+  listIssuesQuerySchema,
+  idParamSchema,
+  updateIssueSchema
 };
