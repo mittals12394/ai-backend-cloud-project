@@ -12,11 +12,14 @@ const validate = (schema, source = 'body') => (req, res, next) => {
 
     next();
   } catch (err) {
-    return res.status(400).json({
-      success: false,
-      message: err.errors?.[0]?.message || 'Validation error'
-    });
-  }
+  console.log(err);
+
+  return res.status(400).json({
+    success: false,
+    message: err.issues?.[0]?.message || err.message,
+    issues: err.issues
+  });
+}
 };
 
 module.exports = validate;

@@ -47,7 +47,10 @@ model Issue {
 
 model LogEntry {
   id        Int      @id @default(autoincrement())
-  message   String
+
+  rawText   String
+  source    String
+
   createdAt DateTime @default(now())
 
   issueId   Int
