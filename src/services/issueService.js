@@ -31,6 +31,9 @@ const getIssues = async (query) => {
         limit,
         status,
         severity,
+        keyword,
+        startDate,
+        endDate,
         sortBy,
         sortOrder
     } = query;
@@ -45,6 +48,35 @@ const getIssues = async (query) => {
 
     if (severity) {
         where.severity = severity;
+    }
+
+    if (keyword) {
+        where.OR = [
+            {
+                title: {
+                    contains: keyword,
+                    mode: 'insensitive'
+                }
+            },
+            {
+                description: {
+                    contains: keyword,
+                    mode: 'insensitive'
+                }
+            }
+        ];
+    }
+
+    if (startDate || endDate) {
+        where.createdAt = {};
+
+        if (startDate) {
+            where.createdAt.gte = new Date(startDate);
+        }
+
+        if (endDate) {
+            where.createdAt.lte = new Date(endDate);
+        }
     }
 
     const [issues, total] = await prisma.$transaction([

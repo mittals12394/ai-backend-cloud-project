@@ -43,6 +43,11 @@ model Issue {
 
   logs        LogEntry[]
   tags        Tag[]
+
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+  @@index([userId])
 }
 
 model LogEntry {
