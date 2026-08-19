@@ -6,10 +6,16 @@ const { getHealth, getVersion } = require("../controllers/healthController");
 const validate = require("../middleware/validate");
 const { createUserSchema } = require("../validators/userValidator");
 const { createIssueSchema, listIssuesQuerySchema, idParamSchema, updateIssueSchema } = require("../validators/issueValidator");
-const {createLogSchema} = require("../validators/logValidator");
+const { createLogSchema } = require("../validators/logValidator");
 const logController = require("../controllers/logController");
 const userController = require("../controllers/userController");
 const issueController = require("../controllers/issueController");
+const authController = require("../controllers/authController");
+const {
+  signupSchema,
+  loginSchema,
+} = require("../validators/authValidator");
+
 
 // Routes
 /**
@@ -109,5 +115,19 @@ router.post("/issues/:id/logs", validate(idParamSchema, 'params'), validate(crea
 router.get("/error", (req, res, next) => {
   next(new AppError("Custom error example", 400));
 });
+
+router.post(
+  "/signup",
+  validate(signupSchema),
+  authController.signup
+);
+
+router.post(
+  "/login",
+  validate(loginSchema),
+  authController.login
+);
+
+module.exports = router;
 
 module.exports = router;
