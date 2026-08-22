@@ -3,7 +3,6 @@ const { z } = require('zod');
 const createIssueSchema = z.object({
     title: z.string().min(3, 'Title must be at least 3 characters'),
     description: z.string().optional(),
-    userId: z.number(),
     status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']).optional(),
     severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional()
 });

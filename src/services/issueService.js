@@ -1,10 +1,10 @@
 const prisma = require('../config/prisma');
 const { where } = require('../models/User');
 
-const createIssue = async (data) => {
+const createIssue = async (data, authenticatedUserId) => {
     const user = await prisma.user.findUnique({
         where: {
-            id: data.userId
+            id: authenticatedUserId
         }
     });
 
@@ -18,7 +18,7 @@ const createIssue = async (data) => {
         data: {
             title: data.title,
             description: data.description,
-            userId: data.userId,
+            userId: authenticatedUserId,
             status: data.status,
             severity: data.severity
         }

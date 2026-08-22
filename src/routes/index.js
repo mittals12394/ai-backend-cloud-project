@@ -15,6 +15,7 @@ const {
   signupSchema,
   loginSchema,
 } = require("../validators/authValidator");
+const auth = require("../middleware/auth");
 
 
 // Routes
@@ -100,17 +101,17 @@ router.get("/users/:id", userController.getUser);
 router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 
-router.post("/issues", validate(createIssueSchema), issueController.createIssue);
+router.post("/issues", auth, validate(createIssueSchema), issueController.createIssue);
 
 router.get("/issues", validate(listIssuesQuerySchema, 'query'), issueController.getIssues);
 
 router.get("/issues/:id", validate(idParamSchema, 'params'), issueController.getIssueById);
 
-router.put("/issues/:id", validate(idParamSchema, 'params'), validate(updateIssueSchema), issueController.updateIssue);
+router.put("/issues/:id", auth, validate(idParamSchema, 'params'), validate(updateIssueSchema), issueController.updateIssue);
 
-router.delete("/issues/:id", validate(idParamSchema, 'params'), issueController.deleteIssue);
+router.delete("/issues/:id", auth, validate(idParamSchema, 'params'), issueController.deleteIssue);
 
-router.post("/issues/:id/logs", validate(idParamSchema, 'params'), validate(createLogSchema), logController.createLog);
+router.post("/issues/:id/logs", auth, validate(idParamSchema, 'params'), validate(createLogSchema), logController.createLog);
 
 router.get("/error", (req, res, next) => {
   next(new AppError("Custom error example", 400));

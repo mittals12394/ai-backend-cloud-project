@@ -2,7 +2,8 @@ const issueService = require('../services/issueService');
 
 const createIssue = async (req, res, next) => {
     try {
-        const issue = await issueService.createIssue(req.body);
+
+        const issue = await issueService.createIssue(req.body, req.user.id);
 
         res.status(201).json({
             success: true,
