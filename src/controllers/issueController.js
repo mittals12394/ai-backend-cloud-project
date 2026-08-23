@@ -50,7 +50,8 @@ const getIssueById = async (req, res, next) => {
 
 const updateIssue = async (req, res, next) => {
     try{
-        const updatedIssue = await issueService.updateIssue(req.validatedParams.id, req.body);
+
+        const updatedIssue = await issueService.updateIssue(req.validatedParams.id, req.body, req.user);
 
         res.status(200).json({
             success: true,

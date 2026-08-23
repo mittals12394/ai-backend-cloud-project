@@ -1,7 +1,9 @@
 const prisma = require('../config/prisma');
 const { where } = require('../models/User');
+const { canModifyIssue } = require("../utils/permissions");
 
 const createIssue = async (data, authenticatedUserId) => {
+
     const user = await prisma.user.findUnique({
         where: {
             id: authenticatedUserId
@@ -142,7 +144,7 @@ const getIssueById = async (id) => {
 
 };
 
-const updateIssue = async (id, data) => {
+const updateIssue = async (id, data, user) => {
     const existing = await prisma.issue.findUnique({
         where: { id }
     });
@@ -151,6 +153,13 @@ const updateIssue = async (id, data) => {
         const error = new Error('Issue not found!');
         error.status = 404;
 
+        throw error;
+    }
+
+    if(!canModifyIssue(user, existing)){
+        const error = new Error("Access denied!");
+        error.status = 403;
+        
         throw error;
     }
 
@@ -180,6 +189,7 @@ const deleteIssue = async (id) => {
 
         throw error;
     }
+
 
     await prisma.issue.delete({
         where: { id }

@@ -16,6 +16,7 @@ const {
   loginSchema,
 } = require("../validators/authValidator");
 const auth = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
 
 
 // Routes
@@ -97,7 +98,7 @@ router.get("/users", userController.getUsers);
  *       404:
  *         description: User not found
  */
-router.get("/users/:id", userController.getUser);
+router.get("/admin/users/:id", auth, authorize('ADMIN'), userController.getUser);
 router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 
@@ -109,7 +110,7 @@ router.get("/issues/:id", validate(idParamSchema, 'params'), issueController.get
 
 router.put("/issues/:id", auth, validate(idParamSchema, 'params'), validate(updateIssueSchema), issueController.updateIssue);
 
-router.delete("/issues/:id", auth, validate(idParamSchema, 'params'), issueController.deleteIssue);
+router.delete("/issues/:id", auth, authorize('ADMIN'), validate(idParamSchema, 'params'), issueController.deleteIssue);
 
 router.post("/issues/:id/logs", auth, validate(idParamSchema, 'params'), validate(createLogSchema), logController.createLog);
 
