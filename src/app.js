@@ -5,11 +5,46 @@ const errorHandler = require("./middleware/errorHandler");
 const AppError = require("./utils/AppError");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
+const helmet = require("helmet");
+const cors = require("cors");
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+const limiter = rateLimit({
+
+  windowMs: 15 * 60 * 1000,
+
+  max: 100,
+
+  message: {
+    success: false,
+    message:
+      'Too many requests. Please try again later.'
+  }
+
+});
+
 // Middleware
 app.use(express.json({ limit: "10kb" }));
+app.use(helmet());
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000'
+    ],
+
+    methods: [
+      'GET',
+      'POST',
+      'PUT',
+      'DELETE'
+    ],
+
+    credentials: true
+  })
+);
+app.use(limiter);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(logger);
 app.use("/api", routes);

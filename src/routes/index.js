@@ -17,6 +17,7 @@ const {
 } = require("../validators/authValidator");
 const auth = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
+const authLimiter = require("../middleware/authLimiter");
 
 
 // Routes
@@ -127,6 +128,7 @@ router.post(
 router.post(
   "/login",
   validate(loginSchema),
+  authLimiter,
   authController.login
 );
 
