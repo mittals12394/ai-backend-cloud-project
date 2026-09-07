@@ -2,7 +2,10 @@ const prisma = require('../config/prisma');
 const { where } = require('../models/User');
 const { canModifyIssue } = require("../utils/permissions");
 
-const createIssue = async (data, authenticatedUserId) => {
+const createIssue = async (
+    data,
+    authenticatedUserId
+) => {
 
     const user = await prisma.user.findUnique({
         where: {
@@ -16,14 +19,35 @@ const createIssue = async (data, authenticatedUserId) => {
         throw error;
     }
 
-    return await prisma.issue.create({
-        data: {
-            title: data.title,
-            description: data.description,
-            userId: authenticatedUserId,
-            status: data.status,
-            severity: data.severity
-        }
+    return await prisma.$transaction(async (tx) => {
+
+        const newIssue = await tx.issue.create({
+            data: {
+                title: data.title,
+                description: data.description,
+
+                userId: authenticatedUserId,
+
+                createdById: authenticatedUserId,
+
+                status: data.status,
+                severity: data.severity
+            }
+        });
+
+        await tx.auditLog.create({
+            data: {
+                entityType: 'Issue',
+
+                entityId: newIssue.id,
+
+                action: 'CREATE',
+
+                userId: authenticatedUserId
+            }
+        });
+
+        return newIssue;
     });
 };
 
@@ -156,10 +180,10 @@ const updateIssue = async (id, data, user) => {
         throw error;
     }
 
-    if(!canModifyIssue(user, existing)){
+    if (!canModifyIssue(user, existing)) {
         const error = new Error("Access denied!");
         error.status = 403;
-        
+
         throw error;
     }
 
@@ -170,9 +194,26 @@ const updateIssue = async (id, data, user) => {
         throw error;
     }
 
-    return await prisma.issue.update({
-        where: { id },
-        data
+    return await prisma.$transaction(async (tx) => {
+
+        const updatedIssue = await tx.issue.update({
+            where: { id },
+            data: {
+                ...data,
+                updatedById: user.id
+            }
+        });
+
+        await tx.auditLog.create({
+            data: {
+                entityType: 'Issue',
+                entityId: id,
+                action: 'UPDATE',
+                userId: user.id
+            }
+        });
+
+        return updatedIssue;
     });
 
 
@@ -193,6 +234,15 @@ const deleteIssue = async (id) => {
 
     await prisma.issue.delete({
         where: { id }
+    });
+
+    await prisma.auditLog.create({
+        data: {
+            entityType: 'Issue',
+            entityId: id,
+            action: 'DELETE',
+            userId: user.userId
+        }
     });
 
     return { message: 'Issue deleted successfully' };

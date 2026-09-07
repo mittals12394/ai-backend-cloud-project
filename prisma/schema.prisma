@@ -38,20 +38,28 @@ enum IssueSeverity {
   CRITICAL
 }
 
-model Issue {
+  model Issue {
   id          Int           @id @default(autoincrement())
+
   title       String
   description String?
+
   status      IssueStatus   @default(OPEN)
   severity    IssueSeverity @default(MEDIUM)
+
   createdAt   DateTime      @default(now())
 
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
 
+  createdById Int?
+  updatedById Int?
+
   logs        LogEntry[]
   tags        Tag[]
 
+  @@index([createdById])
+  @@index([updatedById])
   @@index([status])
   @@index([severity])
   @@index([createdAt])
@@ -80,4 +88,18 @@ model Tag {
   id      Int    @id @default(autoincrement())
   name    String
   issues  Issue[]
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+
+  entityType String
+
+  entityId   Int
+
+  action     String
+
+  userId     Int
+
+  timestamp  DateTime @default(now())
 }

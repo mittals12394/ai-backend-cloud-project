@@ -6,6 +6,8 @@ const errorHandler = (
   next
 ) => {
 
+  console.log(err);
+  
   const status =
     err.status || 500;
 

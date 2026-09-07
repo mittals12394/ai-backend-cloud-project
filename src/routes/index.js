@@ -18,6 +18,7 @@ const {
 const auth = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
 const authLimiter = require("../middleware/authLimiter");
+const auditController = require("../controllers/auditController");
 
 
 // Routes
@@ -130,6 +131,11 @@ router.post(
   validate(loginSchema),
   authLimiter,
   authController.login
+);
+
+router.get(
+  "/auditlog",
+  auditController.getAudit
 );
 
 module.exports = router;
