@@ -45,6 +45,7 @@ const listIssuesQuerySchema = z.object({
         'desc'
     ]).default('desc')
 });
+
 const idParamSchema = z.object({
     id: z.coerce.number().int().positive()
 });

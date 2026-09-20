@@ -19,7 +19,8 @@ const auth = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
 const authLimiter = require("../middleware/authLimiter");
 const auditController = require("../controllers/auditController");
-
+const tagController = require("../controllers/tagController");
+const {createTagSchema} = require("../validators/tagValidator");
 
 // Routes
 /**
@@ -115,6 +116,52 @@ router.put("/issues/:id", auth, validate(idParamSchema, 'params'), validate(upda
 router.delete("/issues/:id", auth, authorize('ADMIN'), validate(idParamSchema, 'params'), issueController.deleteIssue);
 
 router.post("/issues/:id/logs", auth, validate(idParamSchema, 'params'), validate(createLogSchema), logController.createLog);
+
+router.post(
+  '/tags',
+  auth,
+  validate(createTagSchema),
+  tagController.createTag
+);
+
+router.get(
+  '/tags',
+  tagController.getTags
+);
+
+router.get(
+  '/tags/:id',
+  validate(idParamSchema, 'params'),
+  tagController.getTagById
+);
+
+router.put(
+  '/tags/:id',
+  auth,
+  validate(idParamSchema, 'params'),
+  validate(createTagSchema),
+  tagController.updateTag
+);
+
+router.delete(
+  '/tags/:id',
+  auth,
+  authorize('ADMIN'),
+  validate(idParamSchema, 'params'),
+  tagController.deleteTag
+);
+
+router.post(
+  '/issues/:issueId/tags/:tagId',
+  auth,
+  tagController.addTagToIssue
+);
+
+router.delete(
+  '/issues/:issueId/tags/:tagId',
+  auth,
+  tagController.removeTagFromIssue
+);
 
 router.get("/error", (req, res, next) => {
   next(new AppError("Custom error example", 400));
