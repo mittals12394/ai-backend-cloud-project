@@ -1,4 +1,7 @@
 const prisma = require("../config/prisma");
+const {
+  invalidateIssueCache
+} = require('./issueCacheService');
 
 const createTag = async (data) => {
 
@@ -76,7 +79,7 @@ const addTagToIssue = async (
         throw error;
     }
 
-    return prisma.issue.update({
+    const result = await prisma.issue.update({
         where: {
             id: issueId
         },
@@ -94,6 +97,10 @@ const addTagToIssue = async (
         }
     });
 
+    await invalidateIssueCache(issueId);
+
+    return result;
+
 };
 
 const removeTagFromIssue = async (
@@ -101,7 +108,7 @@ const removeTagFromIssue = async (
     tagId
 ) => {
 
-    return prisma.issue.update({
+    const result = await prisma.issue.update({
         where: {
             id: issueId
         },
@@ -117,7 +124,11 @@ const removeTagFromIssue = async (
         include: {
             tags: true
         }
-    });
+    }); 
+
+    await invalidateIssueCache(issueId);
+
+    return result;
 
 };
 

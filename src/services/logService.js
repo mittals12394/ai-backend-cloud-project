@@ -1,4 +1,7 @@
 const prisma = require("../config/prisma");
+const {
+  invalidateIssueCache
+} = require('./issueCacheService');
 
 const createLog = async (issueId, data) => {
     const issue = await prisma.issue.findUnique({
@@ -14,13 +17,17 @@ const createLog = async (issueId, data) => {
         throw error;
     }
 
-    return await prisma.logEntry.create({
+    const log = await prisma.logEntry.create({
         data: {
             issueId,
             rawText: data.rawText,
             source: data.source
         }
     });
+
+    await invalidateIssueCache(issueId);
+
+    return log;
 };
 
 module.exports = {

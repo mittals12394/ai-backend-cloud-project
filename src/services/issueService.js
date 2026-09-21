@@ -1,6 +1,26 @@
 const prisma = require('../config/prisma');
-const { where } = require('../models/User');
+
+const cacheService = require('./cacheService');
+
+const {
+    issueDetailKey,
+    issueListKey
+} = require('../utils/cacheKeys');
+
+const {
+    invalidateIssueLists,
+    invalidateIssueCache,
+    invalidateIssueDetail
+} = require('./issueCacheService');
 const { canModifyIssue } = require("../utils/permissions");
+
+const ISSUES_LIST_CACHE_TTL = Number(
+    process.env.ISSUES_LIST_CACHE_TTL || 60
+);
+
+const ISSUE_DETAIL_CACHE_TTL = Number(
+    process.env.ISSUE_DETAIL_CACHE_TTL || 300
+);
 
 const createIssue = async (
     data,
@@ -19,7 +39,9 @@ const createIssue = async (
         throw error;
     }
 
-    return await prisma.$transaction(async (tx) => {
+
+
+    const issue = await prisma.$transaction(async (tx) => {
 
         const newIssue = await tx.issue.create({
             data: {
@@ -49,9 +71,22 @@ const createIssue = async (
 
         return newIssue;
     });
+
+    await invalidateIssueLists();
+
+    return issue;
 };
 
 const getIssues = async (query) => {
+
+    const cacheKey = issueListKey(query);
+
+    const cachedResult = await cacheService.getJson(cacheKey);
+
+    if (cachedResult) {
+        return cachedResult;
+    }
+
     const {
         page,
         limit,
@@ -129,7 +164,7 @@ const getIssues = async (query) => {
         })
     ]);
 
-    return {
+    const result = {
         issues,
         pagination: {
             page,
@@ -138,9 +173,21 @@ const getIssues = async (query) => {
             totalPages: Math.ceil(total / limit)
         }
     };
+
+    await cacheService.setJson(cacheKey, result, ISSUES_LIST_CACHE_TTL);
+
+    return result;
 };
 
 const getIssueById = async (id) => {
+
+    const cacheKey = issueDetailKey(id);
+
+    const cachedResult = await cacheService.getJson(cacheKey);
+
+    if (cachedResult) { 
+        return cachedResult; 
+    }
 
     const issue = await prisma.issue.findUnique({
         where: { id },
@@ -163,6 +210,8 @@ const getIssueById = async (id) => {
 
         throw error;
     }
+
+    await cacheService.setJson(cacheKey, issue, ISSUE_DETAIL_CACHE_TTL);
 
     return issue;
 
@@ -194,7 +243,7 @@ const updateIssue = async (id, data, user) => {
         throw error;
     }
 
-    return await prisma.$transaction(async (tx) => {
+    const issue = await prisma.$transaction(async (tx) => {
 
         const updatedIssue = await tx.issue.update({
             where: { id },
@@ -215,6 +264,10 @@ const updateIssue = async (id, data, user) => {
 
         return updatedIssue;
     });
+
+    await invalidateIssueCache(id);
+
+    return issue;
 
 
 };
@@ -244,6 +297,8 @@ const deleteIssue = async (id) => {
             userId: user.userId
         }
     });
+
+    await invalidateIssueCache(id);
 
     return { message: 'Issue deleted successfully' };
 };
