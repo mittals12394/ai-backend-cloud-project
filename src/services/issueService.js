@@ -2,6 +2,8 @@ const prisma = require('../config/prisma');
 
 const cacheService = require('./cacheService');
 
+const issueQueue = require("../queues/issueQueue");
+
 const {
     issueDetailKey,
     issueListKey
@@ -71,6 +73,28 @@ const createIssue = async (
 
         return newIssue;
     });
+
+    await issueQueue.add(
+
+        'issue-created',
+
+        {
+            issueId: issue.id,
+            title: issue.title,
+            severity: issue.severity,
+            status: issue.status
+        },
+
+        {
+            attempts: 3,
+
+            backoff: {
+                type: 'exponential',
+
+                delay: 5000
+            }
+        }
+    );
 
     await invalidateIssueLists();
 
@@ -185,8 +209,8 @@ const getIssueById = async (id) => {
 
     const cachedResult = await cacheService.getJson(cacheKey);
 
-    if (cachedResult) { 
-        return cachedResult; 
+    if (cachedResult) {
+        return cachedResult;
     }
 
     const issue = await prisma.issue.findUnique({
