@@ -57,6 +57,7 @@ enum IssueSeverity {
 
   logs        LogEntry[]
   tags        Tag[]
+  summary Summary?
 
   @@index([createdById])
   @@index([updatedById])
@@ -78,12 +79,6 @@ model LogEntry {
   issue     Issue    @relation(fields: [issueId], references: [id])
 }
 
-model Summary {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-}
-
 model Tag {
   id      Int    @id @default(autoincrement())
   name    String @unique
@@ -102,4 +97,34 @@ model AuditLog {
   userId     Int
 
   timestamp  DateTime @default(now())
+}
+
+enum SummaryStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Summary {
+
+  id Int @id @default(autoincrement())
+
+  issueId Int @unique
+
+  status SummaryStatus @default(PENDING)
+
+  content String?
+
+  errorMessage String?
+
+  requestedBy Int?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  completedAt DateTime?
+
+  issue Issue @relation(fields: [issueId], references: [id])
 }

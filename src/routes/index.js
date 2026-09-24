@@ -20,7 +20,18 @@ const authorize = require("../middleware/authorize");
 const authLimiter = require("../middleware/authLimiter");
 const auditController = require("../controllers/auditController");
 const tagController = require("../controllers/tagController");
-const {createTagSchema} = require("../validators/tagValidator");
+const { createTagSchema } = require("../validators/tagValidator");
+const summaryController =
+  require(
+    '../controllers/summaryController'
+  );
+
+const {
+  summaryParamsSchema
+} =
+  require(
+    '../validators/summaryValidator'
+  );
 
 // Routes
 /**
@@ -161,6 +172,24 @@ router.delete(
   '/issues/:issueId/tags/:tagId',
   auth,
   tagController.removeTagFromIssue
+);
+
+router.post(
+  '/issues/:id/summarize',
+  auth,
+  validate(
+    idParamSchema,
+    'params'
+  ),
+  summaryController
+    .triggerSummary
+);
+
+router.get(
+  '/summary/:issueId',
+  auth,
+  validate(summaryParamsSchema, 'params'),
+  summaryController.getSummary
 );
 
 router.get("/error", (req, res, next) => {
