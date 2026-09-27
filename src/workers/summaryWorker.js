@@ -9,6 +9,42 @@ const {
 } =
     require('../config/redis');
 
+const generateHeuristicSummary =
+    (issue) => {
+
+        const allLines =
+            issue.logs.flatMap(log =>
+                log.rawText.split('\n')
+            );
+
+        const errorLines =
+            allLines.filter(line => {
+
+                const lower =
+                    line.toLowerCase();
+
+                return (
+                    lower.includes('error') ||
+                    lower.includes('exception') ||
+                    lower.includes('failed')
+                );
+            });
+
+        const topErrors =
+            errorLines.slice(0, 5);
+
+        return {
+
+            totalLines:
+                allLines.length,
+
+            totalErrors:
+                errorLines.length,
+
+            topErrors
+        };
+    };
+
 
 const worker =
     new Worker(
@@ -23,17 +59,16 @@ const worker =
             } = job.data;
 
             await prisma.summary.update({
-
                 where: {
                     id: summaryId
                 },
 
                 data: {
-                    status:
-                        'PROCESSING'
+                    status: 'PROCESSING',
+                    progress: 10
                 }
             });
-            
+
 
             try {
 
@@ -50,27 +85,51 @@ const worker =
                         }
                     });
 
+                await prisma.summary.update({
+                    where: {
+                        id: summaryId
+                    },
+
+                    data: {
+                        progress: 30
+                    }
+                });
+
+                const result = generateHeuristicSummary(issue);
+
+                await prisma.summary.update({
+                    where: {
+                        id: summaryId
+                    },
+
+                    data: {
+                        progress: 60
+                    }
+                });
+
                 const summaryText = `
-Issue Title:
+const summaryText = 
+Issue Summary
+
+                Issue:
 ${issue.title}
 
-Description:
-${issue.description}
-
-Status:
+                Status:
 ${issue.status}
 
-Severity:
+                Severity:
 ${issue.severity}
 
-Log Count:
-${issue.logs.length}
+Total Log Lines:
+${result.totalLines}
 
-Tags:
-${issue.tags
-                        .map(t => t.name)
-                        .join(', ')}
-`;
+Error Count:
+${result.totalErrors}
+
+Top Error Lines:
+
+${result.topErrors.join('\n')}
+                `;
 
                 await prisma.summary.update({
 
@@ -82,7 +141,8 @@ ${issue.tags
 
                         status:
                             'COMPLETED',
-
+                        progress: 
+                            100,
                         content:
                             summaryText,
 
