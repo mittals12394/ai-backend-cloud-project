@@ -1,6 +1,6 @@
 const prisma = require('../config/prisma');
 const metrics =
- require('../utils/metrics');
+    require('../utils/metrics');
 
 const summaryQueue =
     require('../queues/summaryQueue');
@@ -51,7 +51,12 @@ const requestSummary = async (issueId, userId) => {
             issueId
         },
         {
-            attempts: 3
+            jobId: `summary-${issueId}`,
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 5000
+            }
         }
     );
 

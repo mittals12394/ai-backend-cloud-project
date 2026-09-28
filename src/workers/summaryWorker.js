@@ -20,6 +20,9 @@ const workerStatus =
         '../utils/workerStatus'
     );
 
+const deadLetterQueue =
+    require('../queues/deadLetterQueue');
+
 const generateHeuristicSummary =
     (issue) => {
 
@@ -179,6 +182,17 @@ ${result.topErrors.join('\n')}
                             err.message
                     }
                 });
+
+                await deadLetterQueue.add(
+                    'failed-summary',
+                    {
+                        issueId,
+                        summaryId,
+                        error: err.message,
+                        failedAt:
+                            new Date().toISOString()
+                    }
+                );
 
                 throw err;
             }
