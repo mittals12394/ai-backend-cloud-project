@@ -1,20 +1,39 @@
-// Health check endpoint
-const getHealth = (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    message: "Server is healthy",
-  });
-};
+const metrics =
+  require('../utils/metrics');
 
-// Version endpoint
-const getVersion = (req, res) => {
-  res.status(200).json({
-    version: "1.0.0",
-    service: "AI Backend Project",
-  });
+const workerStatus =
+  require('../utils/workerStatus');
+
+const getHealth =
+  async (
+    req,
+    res
+  ) => {
+
+    res.status(200).json({
+
+      success: true,
+
+      data: {
+
+        api: 'UP',
+
+        worker:
+          workerStatus.healthy
+            ? 'UP'
+            : 'DOWN',
+
+        lastProcessedJob:
+          workerStatus.lastProcessedJob,
+
+        lastCompletedAt:
+          workerStatus.lastCompletedAt,
+
+        metrics
+      }
+    });
 };
 
 module.exports = {
-  getHealth,
-  getVersion,
+  getHealth
 };

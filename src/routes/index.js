@@ -2,7 +2,7 @@ const express = require("express");
 const AppError = require("../utils/AppError");
 const router = express.Router();
 
-const { getHealth, getVersion } = require("../controllers/healthController");
+const { getHealth } = require("../controllers/healthController");
 const validate = require("../middleware/validate");
 const { createUserSchema } = require("../validators/userValidator");
 const { createIssueSchema, listIssuesQuerySchema, idParamSchema, updateIssueSchema } = require("../validators/issueValidator");
@@ -44,8 +44,6 @@ const {
  *         description: Server is running
  */
 router.get("/health", getHealth);
-
-router.get("/version", getVersion);
 
 /**
  * @swagger

@@ -9,6 +9,17 @@ const {
 } =
     require('../config/redis');
 
+const logger =
+    require('../utils/logger');
+
+const metrics =
+    require('../utils/metrics');
+
+const workerStatus =
+    require(
+        '../utils/workerStatus'
+    );
+
 const generateHeuristicSummary =
     (issue) => {
 
@@ -141,7 +152,7 @@ ${result.topErrors.join('\n')}
 
                         status:
                             'COMPLETED',
-                        progress: 
+                        progress:
                             100,
                         content:
                             summaryText,
@@ -182,9 +193,27 @@ ${result.topErrors.join('\n')}
 worker.on(
     'completed',
     (job) => {
+        workerStatus.lastProcessedJob =
+            job.id;
 
-        console.log(
-            `Summary Job ${job.id} completed`
+        workerStatus.lastCompletedAt =
+            new Date();
+
+        workerStatus.healthy = true;
+
+        metrics.jobsProcessed++;
+
+        metrics.summariesGenerated++;
+
+        logger.info(
+
+            'Summary completed',
+
+            {
+                issueId,
+
+                summaryId
+            }
         );
     }
 );
@@ -193,8 +222,22 @@ worker.on(
     'failed',
     (job, err) => {
 
-        console.log(
-            `Summary Job ${job.id} failed`
+        workerStatus.healthy =
+            false;
+
+        metrics.jobsFailed++;
+
+        logger.error(
+
+            'Summary failed',
+
+            {
+                issueId,
+
+                error:
+                    err.message
+            }
         );
     }
 );
+

@@ -1,9 +1,12 @@
 const prisma = require('../config/prisma');
+const metrics =
+ require('../utils/metrics');
 
 const summaryQueue =
     require('../queues/summaryQueue');
 
 const requestSummary = async (issueId, userId) => {
+    metrics.summaryRequests++;
     const issue = await prisma.issue.findUnique({
         where: { id: issueId }
     });
