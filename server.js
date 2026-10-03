@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const app = require('./src/app');
-const connectDB = require('./src/config/db');
 
 const {
   connectRedis,
@@ -15,7 +14,6 @@ let server;
 const startServer = async () => {
   try {
 
-    await connectDB();
 
     await connectRedis();
 
