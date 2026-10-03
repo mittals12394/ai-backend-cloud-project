@@ -13,11 +13,31 @@ services:
       - "8080:8080"
 
     env_file:
-      - .env
+      - .env.docker
 
     depends_on:
       - postgres
       - redis
+
+    command: node server.js
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ai_backend_worker
+
+    restart: unless-stopped
+
+    env_file:
+      - .env.docker
+
+    depends_on:
+      - postgres
+      - redis
+
+    command: npm run worker
 
   postgres:
     image: postgres:15

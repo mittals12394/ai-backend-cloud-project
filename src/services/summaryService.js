@@ -22,6 +22,16 @@ const requestSummary = async (issueId, userId) => {
         where: { issueId: issueId }
     });
 
+    if (
+        existingSummary &&
+        existingSummary.status === 'COMPLETED'
+    ) {
+        return {
+            alreadyExists: true,
+            summary: existingSummary
+        }
+    }
+
     if (existingSummary && (existingSummary.status === "PENDING" || existingSummary.status === "PROCESSING")) {
         const error = new Error("Summary already running");
         error.status = 409;

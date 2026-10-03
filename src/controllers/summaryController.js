@@ -19,6 +19,20 @@ const triggerSummary =
                         req.user.userId
                     );
 
+            if (result.alreadyExists) {
+
+                return res.status(200).json({
+
+                    success: true,
+
+                    message:
+                        'Summary already exists',
+
+                    data:
+                        result.summary
+                });
+            }
+
             res.status(202).json({
 
                 success: true,
