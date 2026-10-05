@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/mittals12394/ai-backend-cloud-project#readme",
   "dependencies": {
+    "@huggingface/inference": "^4.13.30",
     "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "bullmq": "^6.3.8",
@@ -35,6 +36,7 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.3",
+    "opossum": "^10.0.0",
     "redis": "^6.2.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
